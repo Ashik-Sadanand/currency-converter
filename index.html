@@ -1,21 +1,102 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Currency Converter</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f4f4f4; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 320px; }
-        input, select, button { width: 100%; margin: 10px 0; padding: 8px; }
-        #converted-result { margin-top: 10px; font-weight: bold; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Currency Converter</title>
+  <style>
+    :root {
+      --bg-light: #f4f4f4;
+      --text-light: #222;
+      --container-light: #fff;
+      --bg-dark: #121212;
+      --text-dark: #eee;
+      --container-dark: #1e1e1e;
+    }
+
+    html[data-theme='light'] {
+      background-color: var(--bg-light);
+      color: var(--text-light);
+    }
+
+    html[data-theme='dark'] {
+      background-color: var(--bg-dark);
+      color: var(--text-dark);
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: var(--container-light);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 320px;
+      transition: background-color 0.3s;
+    }
+
+    html[data-theme='dark'] .container {
+      background-color: var(--container-dark);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    select, input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .toggle-switch {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 10px;
+    }
+
+    #converted-result {
+      margin-top: 15px;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-<div class="container">
+  <div class="container">
+    <div class="toggle-switch">
+      <label>
+        <input type="checkbox" id="theme-toggle" />
+        🌙 Toggle Dark Mode
+      </label>
+    </div>
     <h1>Currency Converter</h1>
-    <input type="number" id="amount" placeholder="Amount">
+    <input type="number" id="amount" placeholder="Enter amount"/>
     <select id="from-currency">
       <option value="USD">USD – US Dollar</option>
       <option value="EUR">EUR – Euro</option>
@@ -56,33 +137,38 @@
     </select>
     <button onclick="convertCurrency()">Convert</button>
     <div id="converted-result"></div>
-</div>
+  </div>
 
-<script>
-async function convertCurrency() {
-    const amount = document.getElementById('amount').value;
-    const from = document.getElementById('from-currency').value;
-    const to = document.getElementById('to-currency').value;
-    const resultDiv = document.getElementById('converted-result');
+  <script>
+    const toggle = document.getElementById('theme-toggle');
+    toggle.addEventListener('change', () => {
+      document.documentElement.setAttribute('data-theme', toggle.checked ? 'dark' : 'light');
+    });
 
-    if (!amount || amount <= 0) {
+    async function convertCurrency() {
+      const amount = document.getElementById('amount').value;
+      const from = document.getElementById('from-currency').value;
+      const to = document.getElementById('to-currency').value;
+      const resultDiv = document.getElementById('converted-result');
+
+      if (!amount || amount <= 0) {
         resultDiv.textContent = "Please enter a valid amount.";
         return;
-    }
+      }
 
-    try {
+      try {
         const response = await fetch(`/.netlify/functions/convert?from=${from}&to=${to}&amount=${amount}`);
         const data = await response.json();
 
         if (data && data.result !== undefined) {
-            resultDiv.textContent = `${amount} ${from} = ${data.result.toFixed(2)} ${to}`;
+          resultDiv.textContent = `${amount} ${from} = ${data.result.toFixed(2)} ${to}`;
         } else {
-            resultDiv.textContent = "Conversion failed.";
+          resultDiv.textContent = "Conversion failed.";
         }
-    } catch (error) {
+      } catch (error) {
         resultDiv.textContent = "Error: " + error.message;
+      }
     }
-}
-</script>
+  </script>
 </body>
 </html>
