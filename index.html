@@ -93,65 +93,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/gh/ashikjs/unitlogic/unitlogic.min.js"></script>
-<script>
-function showTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.add('inactive'));
-  document.getElementById(`${tab}-tab`).classList.remove('inactive');
-  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-  document.getElementById(tab).classList.add('active');
-}
+<script src="/js/unitlogic.js"></script>
 
-document.getElementById('theme-toggle').addEventListener('change', e => {
-  document.documentElement.setAttribute('data-theme', e.target.checked ? 'dark' : 'light');
-});
-
-// Simulated fromCurrency/toCurrency options (for brevity)
-document.getElementById('from-currency').innerHTML = '<option value="USD">USD</option><option value="EUR">EUR</option>';
-document.getElementById('to-currency').innerHTML = '<option value="INR">INR</option><option value="GBP">GBP</option>';
-function swapCurrencies() {
-  const from = document.getElementById('from-currency');
-  const to = document.getElementById('to-currency');
-  const temp = from.value;
-  from.value = to.value;
-  to.value = temp;
-}
-function convertCurrency() {
-  document.getElementById('converted-result').textContent = 'Mock Conversion Result';
-}
-
-// Load unit categories and populate dropdowns
-const unitLogic = window.unitLogic; // Loaded externally for brevity
-const unitCategory = document.getElementById('unit-category');
-const unitFrom = document.getElementById('unit-from');
-const unitTo = document.getElementById('unit-to');
-
-function loadUnits() {
-  const cat = unitCategory.value;
-  const units = Object.keys(unitLogic[cat].ratios);
-  unitFrom.innerHTML = unitTo.innerHTML = '';
-  units.forEach(unit => {
-    const opt1 = new Option(unit, unit);
-    const opt2 = new Option(unit, unit);
-    unitFrom.appendChild(opt1);
-    unitTo.appendChild(opt2);
-  });
-}
-
-// Populate categories
-Object.keys(unitLogic).forEach(category => {
-  unitCategory.appendChild(new Option(category, category));
-});
-unitCategory.value = 'length';
-loadUnits();
-
-function convertUnit() {
-  const category = unitCategory.value;
-  const from = unitFrom.value;
-  const to = unitTo.value;
-  const value = parseFloat(document.getElementById('unit-value').value);
-  const result = unitLogic[category].convert(from, to, value);
-  document.getElementById('unit-result').textContent = `${value} ${from} = ${result} ${to}`;
-}
-</script>
 </body>
 </html>
