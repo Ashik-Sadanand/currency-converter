@@ -4,7 +4,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Currency Converter</title>
+  <title>Currency Converter Pro</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
       --bg-light: #f4f4f4;
@@ -13,6 +14,8 @@
       --bg-dark: #121212;
       --text-dark: #eee;
       --container-dark: #1e1e1e;
+      --primary: #007bff;
+      --primary-hover: #0056b3;
     }
 
     html[data-theme='light'] {
@@ -31,15 +34,17 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      padding: 40px 10px;
+      min-height: 100vh;
     }
 
     .container {
       background-color: var(--container-light);
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      width: 320px;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      width: 100%;
+      max-width: 400px;
       transition: background-color 0.3s;
     }
 
@@ -50,11 +55,12 @@
     h1 {
       text-align: center;
       margin-bottom: 20px;
+      font-size: 1.6rem;
     }
 
     select, input, button {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       margin-top: 10px;
       border-radius: 6px;
       border: 1px solid #ccc;
@@ -62,28 +68,48 @@
     }
 
     button {
-      background-color: #007bff;
+      background-color: var(--primary);
       color: white;
       border: none;
       cursor: pointer;
       margin-top: 15px;
-      transition: background 0.3s;
+      font-weight: 600;
+      transition: all 0.3s ease;
     }
 
     button:hover {
-      background-color: #0056b3;
+      background-color: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,123,255,0.3);
     }
 
     .toggle-switch {
       display: flex;
       justify-content: flex-end;
       margin-bottom: 10px;
+      font-size: 0.9rem;
     }
 
     #converted-result {
       margin-top: 15px;
       font-weight: bold;
       text-align: center;
+      font-size: 1.2rem;
+    }
+
+    #chart-container {
+      margin-top: 25px;
+    }
+
+    canvas {
+      max-width: 100%;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.85rem;
+      color: gray;
     }
   </style>
 </head>
@@ -91,52 +117,57 @@
   <div class="container">
     <div class="toggle-switch">
       <label>
-        <input type="checkbox" id="theme-toggle" />
-        🌙 Toggle Dark Mode
+        <input type="checkbox" id="theme-toggle" /> 🌙 Toggle Dark Mode
       </label>
     </div>
     <h1>Currency Converter</h1>
     <input type="number" id="amount" placeholder="Enter amount"/>
     <select id="from-currency">
-      <option value="USD">USD – US Dollar</option>
-      <option value="EUR">EUR – Euro</option>
-      <option value="INR">INR – Indian Rupee</option>
-      <option value="GBP">GBP – British Pound</option>
-      <option value="JPY">JPY – Japanese Yen</option>
-      <option value="CAD">CAD – Canadian Dollar</option>
-      <option value="AUD">AUD – Australian Dollar</option>
-      <option value="CHF">CHF – Swiss Franc</option>
-      <option value="CNY">CNY – Chinese Yuan</option>
-      <option value="AED">AED – UAE Dirham</option>
-      <option value="SGD">SGD – Singapore Dollar</option>
-      <option value="ZAR">ZAR – South African Rand</option>
-      <option value="SEK">SEK – Swedish Krona</option>
-      <option value="NOK">NOK – Norwegian Krone</option>
-      <option value="KRW">KRW – South Korean Won</option>
-      <option value="MXN">MXN – Mexican Peso</option>
-      <option value="BRL">BRL – Brazilian Real</option>
+      <option value="USD">🇺🇸 USD – US Dollar</option>
+      <option value="EUR">🇪🇺 EUR – Euro</option>
+      <option value="INR">🇮🇳 INR – Indian Rupee</option>
+      <option value="GBP">🇬🇧 GBP – British Pound</option>
+      <option value="JPY">🇯🇵 JPY – Japanese Yen</option>
+      <option value="CAD">🇨🇦 CAD – Canadian Dollar</option>
+      <option value="AUD">🇦🇺 AUD – Australian Dollar</option>
+      <option value="CHF">🇨🇭 CHF – Swiss Franc</option>
+      <option value="CNY">🇨🇳 CNY – Chinese Yuan</option>
+      <option value="AED">🇦🇪 AED – UAE Dirham</option>
+      <option value="SGD">🇸🇬 SGD – Singapore Dollar</option>
+      <option value="ZAR">🇿🇦 ZAR – South African Rand</option>
+      <option value="SEK">🇸🇪 SEK – Swedish Krona</option>
+      <option value="NOK">🇳🇴 NOK – Norwegian Krone</option>
+      <option value="KRW">🇰🇷 KRW – South Korean Won</option>
+      <option value="MXN">🇲🇽 MXN – Mexican Peso</option>
+      <option value="BRL">🇧🇷 BRL – Brazilian Real</option>
     </select>
     <select id="to-currency">
-      <option value="USD">USD – US Dollar</option>
-      <option value="EUR">EUR – Euro</option>
-      <option value="INR">INR – Indian Rupee</option>
-      <option value="GBP">GBP – British Pound</option>
-      <option value="JPY">JPY – Japanese Yen</option>
-      <option value="CAD">CAD – Canadian Dollar</option>
-      <option value="AUD">AUD – Australian Dollar</option>
-      <option value="CHF">CHF – Swiss Franc</option>
-      <option value="CNY">CNY – Chinese Yuan</option>
-      <option value="AED">AED – UAE Dirham</option>
-      <option value="SGD">SGD – Singapore Dollar</option>
-      <option value="ZAR">ZAR – South African Rand</option>
-      <option value="SEK">SEK – Swedish Krona</option>
-      <option value="NOK">NOK – Norwegian Krone</option>
-      <option value="KRW">KRW – South Korean Won</option>
-      <option value="MXN">MXN – Mexican Peso</option>
-      <option value="BRL">BRL – Brazilian Real</option>
+      <option value="USD">🇺🇸 USD – US Dollar</option>
+      <option value="EUR">🇪🇺 EUR – Euro</option>
+      <option value="INR">🇮🇳 INR – Indian Rupee</option>
+      <option value="GBP">🇬🇧 GBP – British Pound</option>
+      <option value="JPY">🇯🇵 JPY – Japanese Yen</option>
+      <option value="CAD">🇨🇦 CAD – Canadian Dollar</option>
+      <option value="AUD">🇦🇺 AUD – Australian Dollar</option>
+      <option value="CHF">🇨🇭 CHF – Swiss Franc</option>
+      <option value="CNY">🇨🇳 CNY – Chinese Yuan</option>
+      <option value="AED">🇦🇪 AED – UAE Dirham</option>
+      <option value="SGD">🇸🇬 SGD – Singapore Dollar</option>
+      <option value="ZAR">🇿🇦 ZAR – South African Rand</option>
+      <option value="SEK">🇸🇪 SEK – Swedish Krona</option>
+      <option value="NOK">🇳🇴 NOK – Norwegian Krone</option>
+      <option value="KRW">🇰🇷 KRW – South Korean Won</option>
+      <option value="MXN">🇲🇽 MXN – Mexican Peso</option>
+      <option value="BRL">🇧🇷 BRL – Brazilian Real</option>
     </select>
     <button onclick="convertCurrency()">Convert</button>
     <div id="converted-result"></div>
+
+    <div id="chart-container">
+      <canvas id="trendChart" height="200"></canvas>
+    </div>
+
+    <div class="footer">Powered by exchangerate.host</div>
   </div>
 
   <script>
@@ -144,6 +175,8 @@
     toggle.addEventListener('change', () => {
       document.documentElement.setAttribute('data-theme', toggle.checked ? 'dark' : 'light');
     });
+
+    let trendChart = null;
 
     async function convertCurrency() {
       const amount = document.getElementById('amount').value;
@@ -162,11 +195,56 @@
 
         if (data && data.result !== undefined) {
           resultDiv.textContent = `${amount} ${from} = ${data.result.toFixed(2)} ${to}`;
+          drawChart(from, to);
         } else {
           resultDiv.textContent = "Conversion failed.";
         }
       } catch (error) {
         resultDiv.textContent = "Error: " + error.message;
+      }
+    }
+
+    async function drawChart(from, to) {
+      const endDate = new Date().toISOString().split('T')[0];
+      const startDate = new Date(Date.now() - 6 * 86400000).toISOString().split('T')[0];
+      const url = `https://api.exchangerate.host/timeseries?start_date=${startDate}&end_date=${endDate}&base=${from}&symbols=${to}`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        const labels = Object.keys(data.rates);
+        const values = labels.map(date => data.rates[date][to]);
+
+        if (trendChart) trendChart.destroy();
+        const ctx = document.getElementById('trendChart').getContext('2d');
+        trendChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: `${from} to ${to}`,
+              data: values,
+              borderColor: '#007bff',
+              tension: 0.3,
+              fill: true,
+              backgroundColor: 'rgba(0,123,255,0.1)',
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: true }
+            },
+            scales: {
+              x: { display: true },
+              y: { display: true }
+            }
+          }
+        });
+
+      } catch (error) {
+        console.error("Chart error:", error);
       }
     }
   </script>
