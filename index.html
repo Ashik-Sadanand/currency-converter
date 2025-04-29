@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Currency Converter Pro+</title>
+  <title>Currency Converter Pro++</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
@@ -16,155 +16,73 @@
       --container-dark: #1e1e1e;
       --primary: #007bff;
       --primary-hover: #0056b3;
+      --black: #000;
+      --white: #fff;
     }
-
-    html[data-theme='light'] {
-      background-color: var(--bg-light);
-      color: var(--text-light);
-    }
-
-    html[data-theme='dark'] {
-      background-color: var(--bg-dark);
-      color: var(--text-dark);
-    }
-
+    html[data-theme='light'] { background-color: var(--bg-light); color: var(--text-light); }
+    html[data-theme='dark'] { background-color: var(--bg-dark); color: var(--text-dark); }
     body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 40px 10px;
-      min-height: 100vh;
+      margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex; justify-content: center; align-items: center;
+      padding: 40px 10px; min-height: 100vh;
     }
-
     .container {
       background-color: var(--container-light);
-      padding: 25px;
-      border-radius: 12px;
+      padding: 25px; border-radius: 12px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-      width: 100%;
-      max-width: 420px;
+      width: 100%; max-width: 420px;
       transition: background-color 0.3s;
     }
-
-    html[data-theme='dark'] .container {
-      background-color: var(--container-dark);
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-      font-size: 1.7rem;
-    }
-
+    html[data-theme='dark'] .container { background-color: var(--container-dark); }
+    h1 { text-align: center; margin-bottom: 20px; font-size: 1.7rem; }
     select, input, button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
+      width: 100%; padding: 12px; margin-top: 10px;
+      border-radius: 6px; border: 1px solid #ccc; font-size: 1rem;
     }
-
     button {
-      background-color: var(--primary);
-      color: white;
-      border: none;
-      cursor: pointer;
-      margin-top: 15px;
-      font-weight: 600;
+      background-color: var(--primary); color: white;
+      border: none; cursor: pointer; margin-top: 15px; font-weight: 600;
       transition: all 0.3s ease;
     }
-
-    button:hover {
-      background-color: var(--primary-hover);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,123,255,0.3);
-    }
-
+    button:hover { background-color: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,123,255,0.3); }
     .swap-btn {
-      background: #6c757d;
-      margin-top: 5px;
+      width: auto;
+      padding: 8px 16px;
+      background-color: var(--black);
+      color: var(--white);
+      border: none;
+      margin: 10px auto;
+      display: block;
+      font-size: 0.95rem;
+      border-radius: 20px;
+      cursor: pointer;
     }
-
-    .swap-btn:hover {
-      background: #5a6268;
-    }
-
-    .toggle-switch {
-      display: flex;
-      justify-content: flex-end;
-      margin-bottom: 10px;
-      font-size: 0.9rem;
-    }
-
-    #converted-result {
-      margin-top: 15px;
-      font-weight: bold;
-      text-align: center;
-      font-size: 1.2rem;
-    }
-
-    #chart-container {
-      margin-top: 25px;
-    }
-
-    canvas {
-      max-width: 100%;
-    }
-
-    .footer {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 0.85rem;
-      color: gray;
-    }
-
-    .loader {
-      display: none;
-      border: 5px solid #f3f3f3;
-      border-top: 5px solid #007bff;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin: 20px auto;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
+    .swap-btn:hover { opacity: 0.85; }
+    .toggle-switch { display: flex; justify-content: flex-end; margin-bottom: 10px; font-size: 0.9rem; }
+    #converted-result { margin-top: 15px; font-weight: bold; text-align: center; font-size: 1.2rem; }
+    #chart-container { margin-top: 25px; }
+    canvas { max-width: 100%; }
+    .footer { text-align: center; margin-top: 20px; font-size: 0.85rem; color: gray; }
+    .loader { display: none; border: 5px solid #f3f3f3; border-top: 5px solid #007bff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="toggle-switch">
-      <label>
-        <input type="checkbox" id="theme-toggle" /> 🌙 Toggle Dark Mode
-      </label>
-    </div>
-    <h1>Currency Converter</h1>
-    <input type="number" id="amount" placeholder="Enter amount"/>
-
-    <select id="from-currency"></select>
-
-    <button class="swap-btn" onclick="swapCurrencies()">🔄 Swap</button>
-
-    <select id="to-currency"></select>
-
-    <button id="convert-btn" onclick="convertCurrency()">Convert</button>
-
-    <div class="loader" id="loader"></div>
-    <div id="converted-result"></div>
-
-    <div id="chart-container">
-      <canvas id="trendChart" height="200"></canvas>
-    </div>
-
-    <div class="footer">Powered by exchangerate.host</div>
+<div class="container">
+  <div class="toggle-switch">
+    <label><input type="checkbox" id="theme-toggle" /> 🌙 Toggle Dark Mode</label>
   </div>
+  <h1>Currency Converter</h1>
+  <input type="number" id="amount" placeholder="Enter amount"/>
+  <select id="from-currency"></select>
+  <button class="swap-btn" onclick="swapCurrencies()">🔄 Swap</button>
+  <select id="to-currency"></select>
+  <button id="convert-btn" onclick="convertCurrency()">Convert</button>
+  <div class="loader" id="loader"></div>
+  <div id="converted-result"></div>
+  <div id="chart-container"><canvas id="trendChart" height="200"></canvas></div>
+  <div class="footer">Powered by exchangerate.host</div>
+</div>
 
 <script>
 const toggle = document.getElementById('theme-toggle');
@@ -173,11 +91,36 @@ toggle.addEventListener('change', () => {
 });
 
 const currencies = {
-  USD: '$', EUR: '€', INR: '₹', GBP: '£', JPY: '¥', CNY: '¥', CAD: '$', AUD: '$',
-  SGD: '$', AED: 'د.إ', ZAR: 'R', MXN: '$', BRL: 'R$', CHF: 'Fr', KRW: '₩',
-  SEK: 'kr', NOK: 'kr', HKD: '$', THB: '฿', MYR: 'RM', PHP: '₱',
-  IDR: 'Rp', NZD: '$', RUB: '₽', TRY: '₺', SAR: 'ر.س', BHD: 'ب.د',
-  VND: '₫', DKK: 'kr', PLN: 'zł'
+  USD: {symbol: '$', name: 'US Dollar'},
+  EUR: {symbol: '€', name: 'Euro'},
+  INR: {symbol: '₹', name: 'Indian Rupee'},
+  GBP: {symbol: '£', name: 'British Pound'},
+  JPY: {symbol: '¥', name: 'Japanese Yen'},
+  CNY: {symbol: '¥', name: 'Chinese Yuan'},
+  CAD: {symbol: '$', name: 'Canadian Dollar'},
+  AUD: {symbol: '$', name: 'Australian Dollar'},
+  SGD: {symbol: '$', name: 'Singapore Dollar'},
+  AED: {symbol: 'د.إ', name: 'UAE Dirham'},
+  ZAR: {symbol: 'R', name: 'South African Rand'},
+  MXN: {symbol: '$', name: 'Mexican Peso'},
+  BRL: {symbol: 'R$', name: 'Brazilian Real'},
+  CHF: {symbol: 'Fr', name: 'Swiss Franc'},
+  KRW: {symbol: '₩', name: 'South Korean Won'},
+  SEK: {symbol: 'kr', name: 'Swedish Krona'},
+  NOK: {symbol: 'kr', name: 'Norwegian Krone'},
+  HKD: {symbol: '$', name: 'Hong Kong Dollar'},
+  THB: {symbol: '฿', name: 'Thai Baht'},
+  MYR: {symbol: 'RM', name: 'Malaysian Ringgit'},
+  PHP: {symbol: '₱', name: 'Philippine Peso'},
+  IDR: {symbol: 'Rp', name: 'Indonesian Rupiah'},
+  NZD: {symbol: '$', name: 'New Zealand Dollar'},
+  RUB: {symbol: '₽', name: 'Russian Ruble'},
+  TRY: {symbol: '₺', name: 'Turkish Lira'},
+  SAR: {symbol: 'ر.س', name: 'Saudi Riyal'},
+  BHD: {symbol: 'ب.د', name: 'Bahraini Dinar'},
+  VND: {symbol: '₫', name: 'Vietnamese Dong'},
+  DKK: {symbol: 'kr', name: 'Danish Krone'},
+  PLN: {symbol: 'zł', name: 'Polish Zloty'}
 };
 
 const fromCurrencySelect = document.getElementById('from-currency');
@@ -188,13 +131,11 @@ const convertBtn = document.getElementById('convert-btn');
 for (const code in currencies) {
   const option1 = document.createElement('option');
   option1.value = code;
-  option1.textContent = `${currencies[code]} ${code}`;
-
+  option1.textContent = `${currencies[code].symbol} ${code} - ${currencies[code].name}`;
   const option2 = option1.cloneNode(true);
   fromCurrencySelect.appendChild(option1);
   toCurrencySelect.appendChild(option2);
 }
-
 fromCurrencySelect.value = 'USD';
 toCurrencySelect.value = 'INR';
 
@@ -226,7 +167,7 @@ async function convertCurrency() {
     const data = await response.json();
 
     if (data && data.result !== undefined) {
-      resultDiv.textContent = `${amount} ${from} = ${data.result.toFixed(2)} ${to}`;
+      resultDiv.textContent = `${currencies[from].symbol}${amount} ${from} = ${currencies[to].symbol}${data.result.toFixed(2)} ${to}`;
       drawChart(from, to);
     } else {
       resultDiv.textContent = "Conversion failed.";
@@ -268,13 +209,8 @@ async function drawChart(from, to) {
       },
       options: {
         responsive: true,
-        plugins: {
-          legend: { display: true }
-        },
-        scales: {
-          x: { display: true },
-          y: { display: true }
-        }
+        plugins: { legend: { display: true } },
+        scales: { x: { display: true }, y: { display: true } }
       }
     });
   } catch (error) {
