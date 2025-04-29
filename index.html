@@ -77,7 +77,6 @@
   <select id="from-currency"></select>
   <button class="swap-btn" onclick="swapCurrencies()">🔄 Swap</button>
   <select id="to-currency"></select>
-  <button id="convert-btn" onclick="convertCurrency()">Convert</button>
   <div class="loader" id="loader"></div>
   <div id="converted-result"></div>
   <div id="chart-container"><canvas id="trendChart" height="200"></canvas></div>
@@ -136,6 +135,14 @@ for (const code in currencies) {
   fromCurrencySelect.appendChild(option1);
   toCurrencySelect.appendChild(option2);
 }
+
+fromCurrencySelect.addEventListener('change', () => convertCurrency());
+toCurrencySelect.addEventListener('change', () => convertCurrency());
+document.getElementById('amount').addEventListener('input', () => {
+  clearTimeout(window._debounceTimer);
+  window._debounceTimer = setTimeout(() => convertCurrency(), 500);
+});
+
 fromCurrencySelect.value = 'USD';
 toCurrencySelect.value = 'INR';
 
