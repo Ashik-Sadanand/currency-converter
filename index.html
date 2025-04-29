@@ -2,9 +2,9 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Currency Converter Pro</title>
+  <title>Currency Converter Pro+</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
@@ -44,7 +44,7 @@
       border-radius: 12px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.15);
       width: 100%;
-      max-width: 400px;
+      max-width: 420px;
       transition: background-color 0.3s;
     }
 
@@ -55,7 +55,7 @@
     h1 {
       text-align: center;
       margin-bottom: 20px;
-      font-size: 1.6rem;
+      font-size: 1.7rem;
     }
 
     select, input, button {
@@ -81,6 +81,15 @@
       background-color: var(--primary-hover);
       transform: translateY(-2px);
       box-shadow: 0 4px 8px rgba(0,123,255,0.3);
+    }
+
+    .swap-btn {
+      background: #6c757d;
+      margin-top: 5px;
+    }
+
+    .swap-btn:hover {
+      background: #5a6268;
     }
 
     .toggle-switch {
@@ -111,6 +120,22 @@
       font-size: 0.85rem;
       color: gray;
     }
+
+    .loader {
+      display: none;
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #007bff;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -122,45 +147,16 @@
     </div>
     <h1>Currency Converter</h1>
     <input type="number" id="amount" placeholder="Enter amount"/>
-    <select id="from-currency">
-      <option value="USD">🇺🇸 USD – US Dollar</option>
-      <option value="EUR">🇪🇺 EUR – Euro</option>
-      <option value="INR">🇮🇳 INR – Indian Rupee</option>
-      <option value="GBP">🇬🇧 GBP – British Pound</option>
-      <option value="JPY">🇯🇵 JPY – Japanese Yen</option>
-      <option value="CAD">🇨🇦 CAD – Canadian Dollar</option>
-      <option value="AUD">🇦🇺 AUD – Australian Dollar</option>
-      <option value="CHF">🇨🇭 CHF – Swiss Franc</option>
-      <option value="CNY">🇨🇳 CNY – Chinese Yuan</option>
-      <option value="AED">🇦🇪 AED – UAE Dirham</option>
-      <option value="SGD">🇸🇬 SGD – Singapore Dollar</option>
-      <option value="ZAR">🇿🇦 ZAR – South African Rand</option>
-      <option value="SEK">🇸🇪 SEK – Swedish Krona</option>
-      <option value="NOK">🇳🇴 NOK – Norwegian Krone</option>
-      <option value="KRW">🇰🇷 KRW – South Korean Won</option>
-      <option value="MXN">🇲🇽 MXN – Mexican Peso</option>
-      <option value="BRL">🇧🇷 BRL – Brazilian Real</option>
-    </select>
-    <select id="to-currency">
-      <option value="USD">🇺🇸 USD – US Dollar</option>
-      <option value="EUR">🇪🇺 EUR – Euro</option>
-      <option value="INR">🇮🇳 INR – Indian Rupee</option>
-      <option value="GBP">🇬🇧 GBP – British Pound</option>
-      <option value="JPY">🇯🇵 JPY – Japanese Yen</option>
-      <option value="CAD">🇨🇦 CAD – Canadian Dollar</option>
-      <option value="AUD">🇦🇺 AUD – Australian Dollar</option>
-      <option value="CHF">🇨🇭 CHF – Swiss Franc</option>
-      <option value="CNY">🇨🇳 CNY – Chinese Yuan</option>
-      <option value="AED">🇦🇪 AED – UAE Dirham</option>
-      <option value="SGD">🇸🇬 SGD – Singapore Dollar</option>
-      <option value="ZAR">🇿🇦 ZAR – South African Rand</option>
-      <option value="SEK">🇸🇪 SEK – Swedish Krona</option>
-      <option value="NOK">🇳🇴 NOK – Norwegian Krone</option>
-      <option value="KRW">🇰🇷 KRW – South Korean Won</option>
-      <option value="MXN">🇲🇽 MXN – Mexican Peso</option>
-      <option value="BRL">🇧🇷 BRL – Brazilian Real</option>
-    </select>
-    <button onclick="convertCurrency()">Convert</button>
+
+    <select id="from-currency"></select>
+
+    <button class="swap-btn" onclick="swapCurrencies()">🔄 Swap</button>
+
+    <select id="to-currency"></select>
+
+    <button id="convert-btn" onclick="convertCurrency()">Convert</button>
+
+    <div class="loader" id="loader"></div>
     <div id="converted-result"></div>
 
     <div id="chart-container">
@@ -170,83 +166,121 @@
     <div class="footer">Powered by exchangerate.host</div>
   </div>
 
-  <script>
-    const toggle = document.getElementById('theme-toggle');
-    toggle.addEventListener('change', () => {
-      document.documentElement.setAttribute('data-theme', toggle.checked ? 'dark' : 'light');
-    });
+<script>
+const toggle = document.getElementById('theme-toggle');
+toggle.addEventListener('change', () => {
+  document.documentElement.setAttribute('data-theme', toggle.checked ? 'dark' : 'light');
+});
 
-    let trendChart = null;
+const currencies = {
+  USD: '$', EUR: '€', INR: '₹', GBP: '£', JPY: '¥', CNY: '¥', CAD: '$', AUD: '$',
+  SGD: '$', AED: 'د.إ', ZAR: 'R', MXN: '$', BRL: 'R$', CHF: 'Fr', KRW: '₩',
+  SEK: 'kr', NOK: 'kr', HKD: '$', THB: '฿', MYR: 'RM', PHP: '₱',
+  IDR: 'Rp', NZD: '$', RUB: '₽', TRY: '₺', SAR: 'ر.س', BHD: 'ب.د',
+  VND: '₫', DKK: 'kr', PLN: 'zł'
+};
 
-    async function convertCurrency() {
-      const amount = document.getElementById('amount').value;
-      const from = document.getElementById('from-currency').value;
-      const to = document.getElementById('to-currency').value;
-      const resultDiv = document.getElementById('converted-result');
+const fromCurrencySelect = document.getElementById('from-currency');
+const toCurrencySelect = document.getElementById('to-currency');
+const loader = document.getElementById('loader');
+const convertBtn = document.getElementById('convert-btn');
 
-      if (!amount || amount <= 0) {
-        resultDiv.textContent = "Please enter a valid amount.";
-        return;
-      }
+for (const code in currencies) {
+  const option1 = document.createElement('option');
+  option1.value = code;
+  option1.textContent = `${currencies[code]} ${code}`;
 
-      try {
-        const response = await fetch(`/.netlify/functions/convert?from=${from}&to=${to}&amount=${amount}`);
-        const data = await response.json();
+  const option2 = option1.cloneNode(true);
+  fromCurrencySelect.appendChild(option1);
+  toCurrencySelect.appendChild(option2);
+}
 
-        if (data && data.result !== undefined) {
-          resultDiv.textContent = `${amount} ${from} = ${data.result.toFixed(2)} ${to}`;
-          drawChart(from, to);
-        } else {
-          resultDiv.textContent = "Conversion failed.";
+fromCurrencySelect.value = 'USD';
+toCurrencySelect.value = 'INR';
+
+let trendChart = null;
+
+function swapCurrencies() {
+  const temp = fromCurrencySelect.value;
+  fromCurrencySelect.value = toCurrencySelect.value;
+  toCurrencySelect.value = temp;
+}
+
+async function convertCurrency() {
+  const amount = document.getElementById('amount').value;
+  const from = fromCurrencySelect.value;
+  const to = toCurrencySelect.value;
+  const resultDiv = document.getElementById('converted-result');
+
+  if (!amount || amount <= 0) {
+    resultDiv.textContent = "Please enter a valid amount.";
+    return;
+  }
+
+  loader.style.display = 'block';
+  convertBtn.disabled = true;
+  resultDiv.textContent = "";
+
+  try {
+    const response = await fetch(`/.netlify/functions/convert?from=${from}&to=${to}&amount=${amount}`);
+    const data = await response.json();
+
+    if (data && data.result !== undefined) {
+      resultDiv.textContent = `${amount} ${from} = ${data.result.toFixed(2)} ${to}`;
+      drawChart(from, to);
+    } else {
+      resultDiv.textContent = "Conversion failed.";
+    }
+  } catch (error) {
+    resultDiv.textContent = "Error: " + error.message;
+  } finally {
+    loader.style.display = 'none';
+    convertBtn.disabled = false;
+  }
+}
+
+async function drawChart(from, to) {
+  const endDate = new Date().toISOString().split('T')[0];
+  const startDate = new Date(Date.now() - 6 * 86400000).toISOString().split('T')[0];
+  const url = `https://api.exchangerate.host/timeseries?start_date=${startDate}&end_date=${endDate}&base=${from}&symbols=${to}`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    const labels = Object.keys(data.rates);
+    const values = labels.map(date => data.rates[date][to]);
+
+    if (trendChart) trendChart.destroy();
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    trendChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: `${from} to ${to}`,
+          data: values,
+          borderColor: '#007bff',
+          tension: 0.3,
+          fill: true,
+          backgroundColor: 'rgba(0,123,255,0.1)',
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: true }
+        },
+        scales: {
+          x: { display: true },
+          y: { display: true }
         }
-      } catch (error) {
-        resultDiv.textContent = "Error: " + error.message;
       }
-    }
-
-    async function drawChart(from, to) {
-      const endDate = new Date().toISOString().split('T')[0];
-      const startDate = new Date(Date.now() - 6 * 86400000).toISOString().split('T')[0];
-      const url = `https://api.exchangerate.host/timeseries?start_date=${startDate}&end_date=${endDate}&base=${from}&symbols=${to}`;
-
-      try {
-        const response = await fetch(url);
-        const data = await response.json();
-
-        const labels = Object.keys(data.rates);
-        const values = labels.map(date => data.rates[date][to]);
-
-        if (trendChart) trendChart.destroy();
-        const ctx = document.getElementById('trendChart').getContext('2d');
-        trendChart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: labels,
-            datasets: [{
-              label: `${from} to ${to}`,
-              data: values,
-              borderColor: '#007bff',
-              tension: 0.3,
-              fill: true,
-              backgroundColor: 'rgba(0,123,255,0.1)',
-            }]
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              legend: { display: true }
-            },
-            scales: {
-              x: { display: true },
-              y: { display: true }
-            }
-          }
-        });
-
-      } catch (error) {
-        console.error("Chart error:", error);
-      }
-    }
-  </script>
+    });
+  } catch (error) {
+    console.error("Chart error:", error);
+  }
+}
+</script>
 </body>
 </html>
